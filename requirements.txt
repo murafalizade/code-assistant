@@ -1,0 +1,5 @@
+sentence_transformers
+tree_sitter_typescript
+tree_sitter
+chromadb
+torch

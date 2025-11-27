@@ -1,0 +1,65 @@
+# ----------------------
+# Python
+# ----------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.env
+*.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+
+# ----------------------
+# Mac OS
+# ----------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ----------------------
+# IDEs
+# ----------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ----------------------
+# ChromaDB / storage
+# ----------------------
+storage/
+*.sqlite
+*.db
+
+# ----------------------
+# Logs
+# ----------------------
+*.log
+logs/
+*.out
+*.err
+
+# ----------------------
+# Python packaging
+# ----------------------
+*.egg
+*.egg-info
+*.whl
+pip-wheel-metadata/
+
+# ----------------------
+# Misc
+# ----------------------
+*.bak
+*.tmp
+*.swp
+
+chroma
