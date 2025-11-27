@@ -1,0 +1,31 @@
+{
+  "nodes": {
+    "sample_data/test.ts:AuthService": {
+      "type": "class",
+      "name": "AuthService",
+      "file": "sample_data/test.ts"
+    },
+    "sample_data/test.ts:constructor": {
+      "type": "method",
+      "name": "constructor",
+      "file": "sample_data/test.ts"
+    },
+    "sample_data/test.ts:login": {
+      "type": "method",
+      "name": "login",
+      "file": "sample_data/test.ts"
+    },
+    "sample_data/test.ts:logout": {
+      "type": "method",
+      "name": "logout",
+      "file": "sample_data/test.ts"
+    }
+  },
+  "edges": [
+    {
+      "from": "sample_data/test.ts",
+      "to": "Injectable",
+      "type": "call"
+    }
+  ]
+}
