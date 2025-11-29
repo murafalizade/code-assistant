@@ -258,6 +258,7 @@ dependencies = [
     { name = "accelerate" },
     { name = "chromadb" },
     { name = "ctransformers" },
+    { name = "llama-cpp-python" },
     { name = "numpy" },
     { name = "pydantic" },
     { name = "sentence-transformers" },
@@ -278,6 +279,7 @@ requires-dist = [
     { name = "accelerate", specifier = ">=1.12.0" },
     { name = "chromadb", specifier = "==0.4.24" },
     { name = "ctransformers", specifier = ">=0.2.27" },
+    { name = "llama-cpp-python", specifier = ">=0.3.16" },
     { name = "numpy", specifier = "<2" },
     { name = "pydantic", specifier = "==1.10.15" },
     { name = "sentence-transformers", specifier = ">=5.1.2" },
@@ -325,6 +327,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/40/5e/6ed7eaf8f54b5b078e2a609e90369c6999e67f915b9c1927c0d686c494f9/ctransformers-0.2.27.tar.gz", hash = "sha256:25653d4be8a5ed4e2d3756544c1e9881bf95404be5371c3ed506a256c28663d5", size = 376065, upload-time = "2023-09-10T15:19:14.99Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/14/50/0b608e2abee4fc695b4e7ff5f569f5d32faf84a49e322034716fa157d1cf/ctransformers-0.2.27-py3-none-any.whl", hash = "sha256:6a3ba47556471850d95fdbc59299a82ab91c9dc8b40201c5e7e82d71360772d9", size = 9853506, upload-time = "2023-09-10T15:18:58.741Z" },
+]
+
+[[package]]
+name = "diskcache"
+version = "5.6.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/21/1c1ffc1a039ddcc459db43cc108658f32c57d271d7289a2794e401d0fdb6/diskcache-5.6.3.tar.gz", hash = "sha256:2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc", size = 67916, upload-time = "2023-08-31T06:12:00.316Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3f/27/4570e78fc0bf5ea0ca45eb1de3818a23787af9b390c0b0a0033a1b8236f9/diskcache-5.6.3-py3-none-any.whl", hash = "sha256:5e31b2d5fbad117cc363ebaf6b689474db18a1f6438bc82358b024abd4c2ca19", size = 45550, upload-time = "2023-08-31T06:11:58.822Z" },
 ]
 
 [[package]]
@@ -601,6 +612,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/14/c0/c81266c308e1449ed9197b059feea91205832a1cd37e12443c0f7d3e0743/librt-0.6.2-cp313-cp313-win_amd64.whl", hash = "sha256:778667b8688bbacba06739eb5b0b78d99d2c65a99262dac5ab25eba473b34d5f", size = 21483, upload-time = "2025-11-18T16:50:36.923Z" },
     { url = "https://files.pythonhosted.org/packages/35/8e/9ba1d7e4aedec42bb5384ac68d65745f59a91944c2af16fb264cfd2fe42e/librt-0.6.2-cp313-cp313-win_arm64.whl", hash = "sha256:e787bfcccdf0f25e02310d7f1e2b9bfea714f594cda37a6ce6da84502f14acbf", size = 20937, upload-time = "2025-11-18T16:50:37.905Z" },
 ]
+
+[[package]]
+name = "llama-cpp-python"
+version = "0.3.16"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "diskcache" },
+    { name = "jinja2" },
+    { name = "numpy" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/b4/c8cd17629ced0b9644a71d399a91145aedef109c0333443bef015e45b704/llama_cpp_python-0.3.16.tar.gz", hash = "sha256:34ed0f9bd9431af045bb63d9324ae620ad0536653740e9bb163a2e1fcb973be6", size = 50688636, upload-time = "2025-08-15T04:58:29.212Z" }
 
 [[package]]
 name = "markdown-it-py"
