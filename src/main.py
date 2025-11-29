@@ -1,25 +1,67 @@
-from code_assistant.utils.code_chunk_extractor import CodeChunkExtractor
+import streamlit as st
 from code_assistant.vector_db.chroma_store import ChromaStore
+from code_assistant.llm.qwen_llm import QwenLLM   # your updated class
 
+# -------------------------------------------------
+# INITIALIZE MODEL & DATABASE ONLY ONCE
+# -------------------------------------------------
+@st.cache_resource
+def load_llm():
+    return QwenLLM()
 
-if __name__ == "__main__":
-    with open("../sample_data/test.ts") as f:
-        code = f.read()
+@st.cache_resource
+def load_db():
+    return ChromaStore()
 
-    db = ChromaStore()
-    extractor = CodeChunkExtractor(code)
-    chunks = extractor.get_chunks()
+llm = load_llm()
+db = load_db()
 
-    ids = [f"chunk_{i}" for i in range(len(chunks))]
-    metadata = [{
-        "node_type": chunk["node_type"],
-        "name": chunk["name"],
-        "start_line": chunk["start_line"],
-        "end_line": chunk["end_line"],
-    } for chunk in chunks]
-    texts = [chunk['text'] for chunk in chunks]
-    db.add(ids=ids, texts=texts, metadata=metadata)
+# -------------------------------------------------
+# STREAMLIT PAGE SETTINGS
+# -------------------------------------------------
+st.set_page_config(page_title="Code Assistant", page_icon="💻", layout="wide")
+st.title("💻 CodeAssistant — Local LLM + Vector Search")
 
-    results = db.search("How login is working", k=2)
-    print("Search Results:", results)
-    
+st.write("Ask anything related to **code, debugging, or software architecture**.")
+
+# -------------------------------------------------
+# CHAT MEMORY
+# -------------------------------------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display previous messages
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# -------------------------------------------------
+# USER INPUT
+# -------------------------------------------------
+user_input = st.chat_input("Ask your question…")
+
+if user_input:
+    # Save user message
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    # -------------------------------------------------
+    # 1. VECTOR SEARCH
+    # -------------------------------------------------
+    vector_result = db.search(user_input)
+
+    # -------------------------------------------------
+    # 2. LLM ANSWER
+    # -------------------------------------------------
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking…"):
+            answer = llm.generate_from_chunks(user_input, vector_result)
+            assistant_text = answer
+
+            st.markdown(assistant_text)
+
+    # Save assistant answer
+    st.session_state.messages.append({"role": "assistant", "content": assistant_text})

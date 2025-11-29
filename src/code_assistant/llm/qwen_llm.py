@@ -34,10 +34,10 @@ class QwenLLM:
         self.model = Llama(model_path=model_path)
         self.max_context_chars = 3000
 
-    def generate_answer(self, prompt: str, chunks, max_tokens: int = 256) -> str:
+    def _generate_answer(self, prompt: str, chunks, max_tokens: int = 256) -> str:
         system_prompt = SYSTEM_PROMPT
-        chunks = normalize_results(chunks)
-        context = self.make_llm_context(chunks)
+        chunks = self._normalize_results(chunks)
+        context = self._make_llm_context(chunks)
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -48,13 +48,13 @@ class QwenLLM:
         result = self.model.create_chat_completion(
             messages=messages,
             max_tokens=max_tokens,
-            temperature=0.2
+            temperature=0.7
         )
 
         return result["choices"][0]["message"]["content"].strip()
 
     
-    def make_llm_context(self, chunk):
+    def _make_llm_context(self, chunk):
         parts = []
         for c in chunk:
             m = c["meta"]
@@ -68,45 +68,32 @@ class QwenLLM:
             parts.append(block.strip())
         return "\n\n".join(parts)
 
+    def _normalize_results(self, r):
+        out = []
+        ids = r["ids"][0]
+        dists = r["distances"][0]
+        metas = r["metadatas"][0]
+        docs = r["documents"][0]
+
+        for i in range(len(ids)):
+            out.append({
+                "id": ids[i],
+                "distance": dists[i],
+                "meta": metas[i],
+                "code": docs[i],
+            })
+
+        return out
 
     def generate_from_chunks(self, prompt: str, chunks, max_tokens: int = 256) -> str:
         """
         Combine multiple retrieved code chunks into context and generate answer.
         Truncates context if too long.
         """
-        return self.generate_answer(prompt, chunks=chunks, max_tokens=max_tokens)
+        return self._generate_answer(prompt, chunks=chunks, max_tokens=max_tokens)
 
     def close(self):
         """
         Explicitly close the model to avoid destructor warnings.
         """
         self.model.close()
-
-def normalize_results(r):
-    out = []
-    ids = r["ids"][0]
-    dists = r["distances"][0]
-    metas = r["metadatas"][0]
-    docs = r["documents"][0]
-
-    for i in range(len(ids)):
-        out.append({
-            "id": ids[i],
-            "distance": dists[i],
-            "meta": metas[i],
-            "code": docs[i],
-        })
-
-    return out
-
-# Example usage
-if __name__ == "__main__":
-    llm = QwenLLM()
-    try:
-        prompt = input("\nEnter your question (or 'exit' to quit): ").strip()
-        db = ChromaStore()
-        vector = db.search(prompt)
-        answer = llm.generate_from_chunks(prompt, vector)
-        print("LLM Answer:\n", answer)
-    finally:
-        llm.close()

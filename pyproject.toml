@@ -12,6 +12,7 @@ dependencies = [
     "numpy<2",
     "pydantic==1.10.15",
     "sentence-transformers>=5.1.2",
+    "streamlit>=1.51.0",
     "tiktoken>=0.12.0",
     "tree-sitter>=0.25.2",
     "tree-sitter-typescript>=0.23.2",
