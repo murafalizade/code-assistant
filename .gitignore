@@ -63,4 +63,4 @@ pip-wheel-metadata/
 *.swp
 
 chroma
-models/
+models/*

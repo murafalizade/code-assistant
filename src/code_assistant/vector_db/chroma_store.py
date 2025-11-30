@@ -1,6 +1,7 @@
 from pathlib import Path
 import chromadb
 from typing import List
+import torch
 from sentence_transformers import SentenceTransformer
 
 class ChromaStore:
@@ -8,8 +9,9 @@ class ChromaStore:
         self.persist_dir = Path(persist_dir)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
         self.client = chromadb.PersistentClient(path=str(self.persist_dir))
+        device = "mps" if torch.backends.mps.is_available() else "cpu"
         self.collection = self.client.get_or_create_collection(name=collection_name)
-        model = SentenceTransformer('jinaai/jina-embeddings-v2-base-code', trust_remote_code=True)
+        model = SentenceTransformer('jinaai/jina-embeddings-v2-base-code', trust_remote_code=True, device=device)
         self.embedding_fn = lambda texts: model.encode(texts, show_progress_bar=False).tolist()
 
 

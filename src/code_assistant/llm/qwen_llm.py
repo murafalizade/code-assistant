@@ -37,6 +37,7 @@ class QwenLLM:
     def _generate_answer(self, prompt: str, chunks, max_tokens: int = 256) -> str:
         system_prompt = SYSTEM_PROMPT
         chunks = self._normalize_results(chunks)
+        chunks = self._truncate_chunks_by_context(chunks, max_tokens=350)
         context = self._make_llm_context(chunks)
 
         messages = [
@@ -59,9 +60,7 @@ class QwenLLM:
         for c in chunk:
             m = c["meta"]
             block = f"""
-                ### Symbol: {m.get('name')} ({m.get('node_type')})
-                Lines: {m.get('start_line')}–{m.get('end_line')}
-
+                ### 
                 ```ts
                 {c["code"]}
                 """
@@ -84,6 +83,21 @@ class QwenLLM:
             })
 
         return out
+    def _truncate_chunks_by_context(self, chunks, max_tokens=500):
+        """
+        Keep chunks until total estimated tokens < max_tokens.
+        Roughly assume 1 token ≈ 4 chars.
+        """
+        selected = []
+        total_tokens = 0
+        for ch in chunks:
+            est_tokens = len(ch["code"]) // 4
+            if total_tokens + est_tokens > max_tokens:
+                break
+            selected.append(ch)
+            total_tokens += est_tokens
+        return selected
+
 
     def generate_from_chunks(self, prompt: str, chunks, max_tokens: int = 256) -> str:
         """
