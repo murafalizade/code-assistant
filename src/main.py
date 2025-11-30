@@ -20,7 +20,7 @@ db = load_db()
 # STREAMLIT PAGE SETTINGS
 # -------------------------------------------------
 st.set_page_config(page_title="Code Assistant", page_icon="💻", layout="wide")
-st.title("💻 CodeAssistant — Local LLM + Vector Search")
+st.title("Bizden Code Assistant")
 
 st.write("Ask anything related to **code, debugging, or software architecture**.")
 

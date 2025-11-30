@@ -4,7 +4,7 @@ from llama_cpp import Llama
 import os
 
 SYSTEM_PROMPT = """
-    You are CodeAssistant, a helpful AI assistant specialized in software development and code understanding. 
+    You are Bizden Code Assistant, a helpful AI assistant specialized in software development and code understanding. 
     Guidelines for you:
     1. Always provide clear, concise, and accurate explanations.
     2. Focus on code, algorithms, debugging, and best practices.
