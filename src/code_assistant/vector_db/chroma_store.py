@@ -29,7 +29,7 @@ class ChromaStore:
     def get_all(self):
         return self.collection.get(include=["documents", "embeddings", "metadatas", "ids"])
 
-    def search(self, query: str, k: int = 2):
+    def search(self, query: str, k: int = 5):
         query_embedding = self.embedding_fn(query)
         result = self.collection.query(
             query_embeddings=[query_embedding],

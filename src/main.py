@@ -1,10 +1,11 @@
 import streamlit as st
+from code_assistant.llm.qrok_qwen_llm import GroqQwenLLM
 from code_assistant.vector_db.chroma_store import ChromaStore
-from code_assistant.llm.qwen_llm import QwenLLM
+from code_assistant.llm.deepseek_llm import DeepSeekLLM
 
 @st.cache_resource
 def load_llm():
-    return QwenLLM()
+    return GroqQwenLLM()
 
 @st.cache_resource
 def load_db():
