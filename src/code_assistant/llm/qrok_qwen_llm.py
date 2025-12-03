@@ -21,7 +21,7 @@ class GroqQwenLLM:
         api_key = os.environ["GROQ_API_KEY"]
         self.client = Groq(api_key=api_key)
 
-    def _generate_answer(self, prompt: str, chunks) -> str:
+    def __generate_answer(self, prompt: str, chunks) -> str:
         """
         Generate answer using all available chunks without truncating.
         """
@@ -67,7 +67,7 @@ class GroqQwenLLM:
         """
         Generate answer from chunks without truncation or token limits.
         """
-        return self._generate_answer(prompt, chunks)
+        return self.__generate_answer(prompt, chunks)
 
     def close(self):
         self.model.close()
