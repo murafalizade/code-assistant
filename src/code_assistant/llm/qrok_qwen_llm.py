@@ -17,29 +17,15 @@ SYSTEM_PROMPT = """
 """
 
 class GroqQwenLLM:
-    def __init__(self, model_path: str = None):
-        if model_path is None:
-            model_path = os.path.join(
-                os.path.dirname(__file__), "../../../models/deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf"
-            )
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model not found at {model_path}")
-        
+    def __init__(self):
         api_key = os.environ["GROQ_API_KEY"]
-
         self.client = Groq(api_key=api_key)
-        self.model = Llama(model_path=model_path, 
-                           n_gpu_layers=0, 
-                           mps=False, 
-                           n_ctx=4096, 
-                           n_threads=8)
 
     def _generate_answer(self, prompt: str, chunks) -> str:
         """
         Generate answer using all available chunks without truncating.
         """
-        chunks = self._normalize_results(chunks)
-        context = self._make_llm_context(chunks)
+        context = self._normalize_results(chunks)
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -54,31 +40,28 @@ class GroqQwenLLM:
         )
 
         return result.choices[0].message.content
-
-
-    def _make_llm_context(self, chunks):
-        parts = []
-        for c in chunks:
-            print(c)
-            parts.append(f"###\n```ts\n{c['code']}\n```")
-        return "\n\n".join(parts)
     
     def _normalize_results(self, r):
-        out = []
+        parts = []
         ids = r["ids"][0]
-        dists = r["distances"][0]
         metas = r["metadatas"][0]
         docs = r["documents"][0]
 
         for i in range(len(ids)):
-            out.append({
-                "id": ids[i],
-                "distance": dists[i],
-                "meta": metas[i],
-                "code": docs[i],
-            })
+            meta = metas[i]
+            meta_block = (
+                f"// file: {meta.get('file_path')}\n"
+                f"// name: {meta.get('name')}\n"
+                f"// type: {meta.get('type')}\n"
+                f"// lines: {meta.get('start_line')}–{meta.get('end_line')}"
+            )
+            parts.append(
+                f"###\n"
+                f"{meta_block}\n"
+                f"```ts\n{docs[i]}\n```"
+            )
 
-        return out
+        return "\n\n".join(parts)
     
     def generate_from_chunks(self, prompt: str, chunks) -> str:
         """

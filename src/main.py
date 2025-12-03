@@ -1,7 +1,7 @@
 import streamlit as st
 from code_assistant.llm.qrok_qwen_llm import GroqQwenLLM
 from code_assistant.vector_db.chroma_store import ChromaStore
-from code_assistant.llm.deepseek_llm import DeepSeekLLM
+import re
 
 @st.cache_resource
 def load_llm():
@@ -10,6 +10,9 @@ def load_llm():
 @st.cache_resource
 def load_db():
     return ChromaStore()
+
+def strip_think(text: str) -> str:
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
 llm = load_llm()
 db = load_db()
@@ -41,9 +44,8 @@ if user_input:
     with st.chat_message("assistant"):
         with st.spinner("Thinking…"):
             answer = llm.generate_from_chunks(user_input, vector_result)
-            assistant_text = answer
+            assistant_text = strip_think(answer)
 
             st.markdown(assistant_text)
 
-    # Save assistant answer
     st.session_state.messages.append({"role": "assistant", "content": assistant_text})
