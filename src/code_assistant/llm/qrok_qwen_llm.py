@@ -1,6 +1,6 @@
-from llama_cpp import Llama
-from groq import Groq
 import os
+
+from groq import Groq
 
 SYSTEM_PROMPT = """
     You are Bizden Code Assistant, a helpful AI assistant specialized in software development and code understanding. 
@@ -16,6 +16,7 @@ SYSTEM_PROMPT = """
     9. Only answer questions related to coding, code explanation, code generation, software projects, and technology. For any other type of question, respond: "I am specialized in coding and technology questions, and cannot provide advice on this topic."
 """
 
+
 class GroqQwenLLM:
     def __init__(self):
         api_key = os.environ["GROQ_API_KEY"]
@@ -29,18 +30,19 @@ class GroqQwenLLM:
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "assistant", "content": f"Here is the context:\n{context}\n\nUse it ONLY if it is relevant."},
+            {
+                "role": "assistant",
+                "content": f"Here is the context:\n{context}\n\nUse it ONLY if it is relevant.",
+            },
             {"role": "user", "content": prompt},
         ]
 
         result = self.client.chat.completions.create(
-                model="qwen/qwen3-32b",
-                messages=messages,
-                temperature=0.2
+            model="qwen/qwen3-32b", messages=messages, temperature=0.2
         )
 
         return result.choices[0].message.content
-    
+
     def _normalize_results(self, r):
         parts = []
         ids = r["ids"][0]
@@ -55,14 +57,10 @@ class GroqQwenLLM:
                 f"// type: {meta.get('type')}\n"
                 f"// lines: {meta.get('start_line')}–{meta.get('end_line')}"
             )
-            parts.append(
-                f"###\n"
-                f"{meta_block}\n"
-                f"```ts\n{docs[i]}\n```"
-            )
+            parts.append(f"###\n{meta_block}\n```ts\n{docs[i]}\n```")
 
         return "\n\n".join(parts)
-    
+
     def generate_from_chunks(self, prompt: str, chunks) -> str:
         """
         Generate answer from chunks without truncation or token limits.

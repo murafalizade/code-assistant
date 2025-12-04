@@ -1,18 +1,24 @@
+import re
+
 import streamlit as st
+
 from code_assistant.llm.qrok_qwen_llm import GroqQwenLLM
 from code_assistant.vector_db.chroma_store import ChromaStore
-import re
+
 
 @st.cache_resource
 def load_llm():
     return GroqQwenLLM()
 
+
 @st.cache_resource
 def load_db():
     return ChromaStore()
 
+
 def strip_think(text: str) -> str:
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
 
 llm = load_llm()
 db = load_db()

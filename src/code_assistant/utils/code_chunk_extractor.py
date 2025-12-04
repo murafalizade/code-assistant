@@ -1,6 +1,6 @@
-import os
-from tree_sitter import Language, Parser
 import tree_sitter_typescript as tstypescript
+from tree_sitter import Language, Parser
+
 
 class CodeChunkExtractor:
     def __init__(self, code: str):
@@ -23,7 +23,7 @@ class CodeChunkExtractor:
                 "property_identifier",
                 "type_identifier",
             ):
-                return self.code_bytes[child.start_byte:child.end_byte].decode("utf8")
+                return self.code_bytes[child.start_byte : child.end_byte].decode("utf8")
         return None
 
     def get_chunk(self, node):

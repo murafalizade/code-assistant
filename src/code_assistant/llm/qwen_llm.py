@@ -1,7 +1,6 @@
-from typing import List
-from code_assistant.vector_db.chroma_store import ChromaStore
-from llama_cpp import Llama
 import os
+
+from llama_cpp import Llama
 
 SYSTEM_PROMPT = """
     You are Bizden Code Assistant, a helpful AI assistant specialized in software development and code understanding. 
@@ -16,7 +15,6 @@ SYSTEM_PROMPT = """
     8. If the provided context does not match the question, ignore the context and answer based on the question only.
     9. Only answer questions related to coding, code explanation, code generation, software projects, and technology. For any other type of question, respond: "I am specialized in coding and technology questions, and cannot provide advice on this topic."
 """
-
 
 
 class QwenLLM:
@@ -35,30 +33,28 @@ class QwenLLM:
         self.max_context_chars = 3000
 
     def _generate_answer(self, prompt: str, chunks, max_tokens: int = 256) -> str:
-        system_prompt = SYSTEM_PROMPT
         chunks = self._normalize_results(chunks)
         chunks = self._truncate_chunks_by_context(chunks, max_tokens=350)
         context = self._make_llm_context(chunks)
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "assistant", "content": f"Here is the context:\n{context}\n\nUse it ONLY if it is relevant."},
+            {
+                "role": "assistant",
+                "content": f"Here is the context:\n{context}\n\nUse it ONLY if it is relevant.",
+            },
             {"role": "user", "content": prompt},
         ]
 
         result = self.model.create_chat_completion(
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=0.7
+            messages=messages, max_tokens=max_tokens, temperature=0.7
         )
 
         return result["choices"][0]["message"]["content"].strip()
 
-    
     def _make_llm_context(self, chunk):
         parts = []
         for c in chunk:
-            m = c["meta"]
             block = f"""
                 ### 
                 ```ts
@@ -75,14 +71,17 @@ class QwenLLM:
         docs = r["documents"][0]
 
         for i in range(len(ids)):
-            out.append({
-                "id": ids[i],
-                "distance": dists[i],
-                "meta": metas[i],
-                "code": docs[i],
-            })
+            out.append(
+                {
+                    "id": ids[i],
+                    "distance": dists[i],
+                    "meta": metas[i],
+                    "code": docs[i],
+                }
+            )
 
         return out
+
     def _truncate_chunks_by_context(self, chunks, max_tokens=500):
         """
         Keep chunks until total estimated tokens < max_tokens.
@@ -97,7 +96,6 @@ class QwenLLM:
             selected.append(ch)
             total_tokens += est_tokens
         return selected
-
 
     def generate_from_chunks(self, prompt: str, chunks, max_tokens: int = 256) -> str:
         """

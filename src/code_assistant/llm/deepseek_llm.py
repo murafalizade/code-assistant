@@ -1,8 +1,7 @@
-from typing import List
-from code_assistant.vector_db.chroma_store import ChromaStore
-from llama_cpp import Llama
 import os
+
 import torch
+from llama_cpp import Llama
 
 SYSTEM_PROMPT = """
     You are Bizden Code Assistant, a helpful AI assistant specialized in software development and code understanding. 
@@ -18,20 +17,20 @@ SYSTEM_PROMPT = """
     9. Only answer questions related to coding, code explanation, code generation, software projects, and technology. For any other type of question, respond: "I am specialized in coding and technology questions, and cannot provide advice on this topic."
 """
 
+
 class DeepSeekLLM:
     def __init__(self, model_path: str = None):
         if model_path is None:
             model_path = os.path.join(
-                os.path.dirname(__file__), "../../../models/deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf"
+                os.path.dirname(__file__),
+                "../../../models/deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf",
             )
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model not found at {model_path}")
         torch.mps.empty_cache()
-        self.model = Llama(model_path=model_path, 
-                           n_gpu_layers=0, 
-                           mps=False, 
-                           n_ctx=4096, 
-                           n_threads=8)
+        self.model = Llama(
+            model_path=model_path, n_gpu_layers=0, mps=False, n_ctx=4096, n_threads=8
+        )
 
     def _generate_answer(self, prompt: str, chunks) -> str:
         """
@@ -42,14 +41,14 @@ class DeepSeekLLM:
 
         messages = [
             # {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "assistant", "content": f"Here is the context:\n{context}\n\nUse it ONLY if it is relevant."},
+            {
+                "role": "assistant",
+                "content": f"Here is the context:\n{context}\n\nUse it ONLY if it is relevant.",
+            },
             {"role": "user", "content": prompt},
         ]
 
-        result = self.model.create_chat_completion(
-            messages=messages,
-            temperature=0.2
-        )
+        result = self.model.create_chat_completion(messages=messages, temperature=0.2)
 
         return result["choices"][0]["message"]["content"].strip()
 
@@ -59,7 +58,7 @@ class DeepSeekLLM:
             print(c)
             parts.append(f"###\n```ts\n{c['code']}\n```")
         return "\n\n".join(parts)
-    
+
     def _normalize_results(self, r):
         out = []
         ids = r["ids"][0]
@@ -68,15 +67,17 @@ class DeepSeekLLM:
         docs = r["documents"][0]
 
         for i in range(len(ids)):
-            out.append({
-                "id": ids[i],
-                "distance": dists[i],
-                "meta": metas[i],
-                "code": docs[i],
-            })
+            out.append(
+                {
+                    "id": ids[i],
+                    "distance": dists[i],
+                    "meta": metas[i],
+                    "code": docs[i],
+                }
+            )
 
         return out
-    
+
     def generate_from_chunks(self, prompt: str, chunks) -> str:
         """
         Generate answer from chunks without truncation or token limits.

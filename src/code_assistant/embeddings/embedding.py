@@ -1,8 +1,10 @@
 import os
+
 import torch
-from typing import List
+
 from code_assistant.utils.code_chunk_extractor import CodeChunkExtractor
 from code_assistant.vector_db.chroma_store import ChromaStore
+
 
 def sanitize_metadata(meta: dict) -> dict:
     """Ensure all metadata values are str, int, float, or bool."""
@@ -13,6 +15,7 @@ def sanitize_metadata(meta: dict) -> dict:
         else:
             sanitized[k] = v
     return sanitized
+
 
 def get_processed_ids(db) -> set:
     """Retrieve IDs already stored in the DB to allow resumable embedding."""
@@ -61,21 +64,30 @@ def embed_project(folder_path: str, batch_size: int = 4, use_mps: bool = True):
     print(f"{len(processed_ids)} chunks already embedded. Resuming...")
 
     for i in range(0, len(all_chunks), batch_size):
-        batch = all_chunks[i:i + batch_size]
+        batch = all_chunks[i : i + batch_size]
 
-        batch = [ch for ch in batch if f"{ch['file_path']}:{ch['start_line']}-{ch['end_line']}" not in processed_ids]
+        batch = [
+            ch
+            for ch in batch
+            if f"{ch['file_path']}:{ch['start_line']}-{ch['end_line']}" not in processed_ids
+        ]
         if not batch:
             continue
 
         texts = [ch["text"] for ch in batch]
         ids = [f"{ch['file_path']}:{ch['start_line']}-{ch['end_line']}" for ch in batch]
-        metadata = [sanitize_metadata({
-            "file_path": ch["file_path"],
-            "name": ch["name"],
-            "type": ch["node_type"],
-            "start_line": ch["start_line"],
-            "end_line": ch["end_line"],
-        }) for ch in batch]
+        metadata = [
+            sanitize_metadata(
+                {
+                    "file_path": ch["file_path"],
+                    "name": ch["name"],
+                    "type": ch["node_type"],
+                    "start_line": ch["start_line"],
+                    "end_line": ch["end_line"],
+                }
+            )
+            for ch in batch
+        ]
 
         db.add(ids=ids, texts=texts, metadata=metadata)
 
@@ -85,6 +97,7 @@ def embed_project(folder_path: str, batch_size: int = 4, use_mps: bool = True):
         print(f"Processed batch {i} → {i + len(batch)}")
 
     print("✅ All code chunks embedded and stored successfully!")
+
 
 if __name__ == "__main__":
     path = input("Enter your project folder(e.g. '/Users/your_name/Desktop/project_folder'): ")

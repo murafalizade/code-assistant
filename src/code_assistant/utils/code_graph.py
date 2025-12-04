@@ -1,7 +1,8 @@
-import os
 import json
-from tree_sitter import Parser, Language
+import os
+
 import tree_sitter_typescript as tstypescript
+from tree_sitter import Language, Parser
 
 TS_LANGUAGE = tstypescript.language_typescript()
 
@@ -22,7 +23,7 @@ def walk(node):
 
 
 def get_text(code, node):
-    return code[node.start_byte:node.end_byte]
+    return code[node.start_byte : node.end_byte]
 
 
 def build_graph_for_file(path):
@@ -45,11 +46,7 @@ def build_graph_for_file(path):
                 class_name = get_text(code, name_node)
                 class_id = f"{file_id}:{class_name}"
 
-                nodes[class_id] = {
-                    "type": "class",
-                    "name": class_name,
-                    "file": file_id
-                }
+                nodes[class_id] = {"type": "class", "name": class_name, "file": file_id}
 
         if kind == "method_definition":
             name_node = node.child_by_field_name("name")
@@ -57,21 +54,13 @@ def build_graph_for_file(path):
                 method_name = get_text(code, name_node)
                 method_id = f"{file_id}:{method_name}"
 
-                nodes[method_id] = {
-                    "type": "method",
-                    "name": method_name,
-                    "file": file_id
-                }
+                nodes[method_id] = {"type": "method", "name": method_name, "file": file_id}
 
         if kind == "decorator":
             expr = node.child_by_field_name("expression")
             if expr:
                 decorator_name = get_text(code, expr)
-                edges.append({
-                    "from": file_id,
-                    "to": decorator_name,
-                    "type": "decorator"
-                })
+                edges.append({"from": file_id, "to": decorator_name, "type": "decorator"})
 
         # ---------------------------------------
         # CALL EXPRESSIONS
@@ -80,21 +69,13 @@ def build_graph_for_file(path):
             func_node = node.child_by_field_name("function")
             if func_node:
                 func_name = get_text(code, func_node)
-                edges.append({
-                    "from": file_id,
-                    "to": func_name,
-                    "type": "call"
-                })
+                edges.append({"from": file_id, "to": func_name, "type": "call"})
 
         if kind == "import_statement":
             src_node = node.child_by_field_name("source")
             if src_node:
-                module_path = get_text(code, src_node).strip('"\'')
-                edges.append({
-                    "from": file_id,
-                    "to": module_path,
-                    "type": "import"
-                })
+                module_path = get_text(code, src_node).strip("\"'")
+                edges.append({"from": file_id, "to": module_path, "type": "import"})
 
     return nodes, edges
 
@@ -108,7 +89,7 @@ def build_code_graph(root_dir):
         for file in files:
             if not file.endswith((".ts", ".tsx")):
                 continue
-            
+
             path = os.path.join(root, file)
             nodes, edges = build_graph_for_file(path)
 
