@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from groq import Groq
 
 SYSTEM_PROMPT = """
@@ -19,7 +20,11 @@ SYSTEM_PROMPT = """
 
 class GroqQwenLLM:
     def __init__(self):
+        load_dotenv()
         api_key = os.environ["GROQ_API_KEY"]
+        if not api_key:
+            raise RuntimeError("Missing GROQ_API_KEY environment variable")
+        
         self.client = Groq(api_key=api_key)
 
     def __generate_answer(self, prompt: str, chunks) -> str:
