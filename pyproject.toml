@@ -1,7 +1,7 @@
 [project]
 name = "code-assistant"
 version = "0.1.0"
-description = "Add your description here"
+description = "Lightweight local Code Assistant with RAG"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
@@ -36,7 +36,7 @@ exclude = ["build", "dist", ".venv", "__pycache__", "data", "models"]
 [tool.mypy]
 python_version = 3.11
 strict = true
-ignore_missing_imports = true  # avoids errors from third-party ML/AI libraries
+ignore_missing_imports = false
 warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
